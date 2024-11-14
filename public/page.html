@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Go game of life</title>
+</head>
+
+<body>
+  <div>
+    <canvas width="512" height="512"></canvas>
+  </div>
+</body>
+
+<script>
+  const canvas = document.querySelector('canvas');
+  const draw = canvas.getContext('2d');
+  draw.translate(0.5, 0.5);
+
+  function drawGame(wn, hn, cells) {
+    const cellW = canvas.width / wn;
+    const cellH = canvas.height / hn;
+
+    draw.fillStyle = '#515151ff';
+    draw.fillRect(0, 0, canvas.width, canvas.height);
+
+    draw.fillStyle = 'white';
+    for (let i = 0; i < wn; i++) {
+      for (let j = 0; j < hn; j++) {
+        const filled = cells[j + i * hn];
+        if (!filled) continue;
+        draw.fillRect(j * cellW, i * cellH, cellW, cellH);
+      }
+    }
+  }
+
+  const socket = new WebSocket('ws://127.0.0.1:8080/ws');
+
+  socket.addEventListener('open', function () {
+    console.log('Status: Connected');
+  });
+
+  socket.addEventListener('message', function (e) {
+    const data = JSON.parse(e.data);
+    drawGame(data.N, data.M, data.Grid);
+  });
+</script>
+
+</html>
